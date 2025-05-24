@@ -33,3 +33,8 @@
 
 # Macos
 *.DS_Store
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+build/

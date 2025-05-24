@@ -1,28 +1,40 @@
-# Top-level Makefile
+PYTHON_CONFIG := /usr/bin/python3-config  # or /usr/local/bin/python3-config
 
-# Compiler and flags
+# Compiler settings
 CXX := g++
-CXXFLAGS := -std=c++17 -Wall -I../src
+PYTHON_CONFIG := python3-config
+PYTHON_PREFIX := /opt/homebrew/opt/python@3.13
+NUMPY_INCLUDE := /opt/homebrew/lib/python3.13/site-packages/numpy/core/include
 
-# Source and build paths
-SRC_DIR := ../src
-SRC_FILES := $(SRC_DIR)/main.cpp
-OBJ_FILES := main.o
+CXXFLAGS := -std=c++17 -Wall \
+  -I./src \
+  -I./external \
+  -I$(PYTHON_PREFIX)/Frameworks/Python.framework/Versions/3.13/include/python3.13 \
+  -DWITHOUT_NUMPY
 
-# Output binary
-TARGET := main
+LDFLAGS := -L$(PYTHON_PREFIX)/Frameworks/Python.framework/Versions/3.13/lib \
+  -lpython3.13
+
+# Source and object files
+SRC := src/main.cpp
+OBJ := build/main.o
+TARGET := build/main
 
 # Default target
 all: $(TARGET)
 
+# Ensure build directory exists
+build:
+	mkdir -p build
+
 # Compile object file
-%.o: $(SRC_DIR)/%.cpp
+$(OBJ): $(SRC) | build
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# Link final binary
-$(TARGET): $(OBJ_FILES)
-	$(CXX) $(CXXFLAGS) -o $@ $^
+# Link executable
+$(TARGET): $(OBJ)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
-# Clean
+# Clean build artifacts
 clean:
-	rm -f *.o $(TARGET)
+	rm -rf build

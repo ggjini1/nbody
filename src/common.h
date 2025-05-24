@@ -1,6 +1,8 @@
 #pragma once
 
 #include <vector>
+#include <string>
+#include "matplotlib-cpp/matplotlibcpp.h"
 
 struct vec3
 {
@@ -65,7 +67,8 @@ inline vec3 operator*(float scalar, const vec3& v)
 
 class System
 {
-    System(int numParticles, std::vector<vec3>& x, std::vector<vec3>& v,  std::vector<vec3>& m, float G) 
+public:
+    System(int numParticles, const std::vector<vec3>& x, const std::vector<vec3>& v, const std::vector<float>& m, float G) 
         : m_numParticles(numParticles), m_x(x), m_v(v), m_m(m), m_G(G) {}
 
     void correctCenterOfMass(void)
@@ -87,10 +90,38 @@ class System
             m_v[i] -= vcm;
         }
     }
-private:
+
     int m_numParticles;
     std::vector<vec3> m_x;
     std::vector<vec3> m_v;
     std::vector<float> m_m;
     float m_G;
 };
+
+namespace plt = matplotlibcpp;
+
+void plotInitialConditions(
+    const System& system, 
+    const std::vector<std::string>& colors, 
+    bool legend = true,
+    const std::string& filename = "") {
+    // Set axis labels with LaTeX-style formatting
+    plt::xlabel("$x$ (AU)");
+    plt::ylabel("$y$ (AU)");
+
+    std::vector<float> x_coords;
+    std::vector<float> y_coords;
+    std::vector<std::string> point_colors;
+    for (size_t i = 0; i < system.m_numParticles; ++i) {
+        x_coords.push_back(system.m_x[i].x);
+        y_coords.push_back(system.m_x[i].y);
+        point_colors.push_back(colors[i]);
+    }
+    plt::scatter_colored(x_coords, y_coords, point_colors);
+    if (legend) {
+        plt::legend();
+    }
+    if (!filename.empty()) {
+        plt::save(filename);  
+    }
+}

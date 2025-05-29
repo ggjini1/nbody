@@ -3,7 +3,10 @@
 #include <string>
 #include <unordered_map>
 #include <system.h>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #include <matplotlib-cpp/matplotlibcpp.h>
+#pragma GCC diagnostic pop
 
 namespace plt = matplotlibcpp;
 
